@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Medicarpp – El pastillero inteligente</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:       #1E3A5F;
+    --navy-light: #2D5282;
+    --blue:       #4A9EDE;
+    --blue-light: #72B8F0;
+    --mint:       #B2E8E4;
+    --mint-dark:  #5DCFCA;
+    --mint-bg:    #E8F8F7;
+    --green:      #48C774;
+    --green-dark: #2D9E5A;
+    --red:        #FF5A5F;
+    --amber:      #FFB347;
+    --purple:     #A29BFE;
+    --bg:         #F0F4F8;
+    --white:      #FFFFFF;
+    --muted:      #718096;
+    --dark:       #1A202C;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dark);overflow-x:hidden}
+
+  /* ─── NAV ─── */
+  nav{
+    position:fixed;top:0;left:0;right:0;z-index:100;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:1rem 3rem;
+    background:rgba(30,58,95,0.96);
+    backdrop-filter:blur(14px);
+    border-bottom:1px solid rgba(255,255,255,0.07);
+  }
+  .nav-logo{display:flex;align-items:center;gap:10px;font-family:'Syne',sans-serif;font-weight:800;font-size:1.25rem;color:#fff;text-decoration:none}
+  .nav-icon{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--blue),var(--mint-dark));display:flex;align-items:center;justify-content:center;font-size:1rem}
+  .nav-links{display:flex;align-items:center;gap:2rem}
+  .nav-links a{color:rgba(255,255,255,0.72);text-decoration:none;font-size:0.88rem;transition:color .2s}
+  .nav-links a:hover{color:var(--mint)}
+  .nav-cta{background:var(--blue);color:#fff!important;padding:.45rem 1.2rem;border-radius:50px;font-weight:500!important}
+  .nav-cta:hover{background:var(--blue-light)!important}
+
+  /* ─── HERO ─── */
+  #hero{
+    min-height:100vh;
+    background:linear-gradient(150deg,#0F2540 0%,#1E3A5F 55%,#14304F 100%);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:9rem 2rem 5rem;
+    position:relative;overflow:hidden;
+  }
+  .glow{position:absolute;border-radius:50%;filter:blur(90px);opacity:.15;pointer-events:none}
+  .g1{width:600px;height:600px;background:var(--blue);top:-150px;right:-150px}
+  .g2{width:450px;height:450px;background:var(--mint-dark);bottom:-80px;left:-100px}
+  .g3{width:300px;height:300px;background:var(--purple);top:40%;left:20%}
+
+  .badge{
+    display:inline-flex;align-items:center;gap:7px;
+    background:rgba(74,158,222,0.18);border:1px solid rgba(74,158,222,0.38);
+    color:var(--blue-light);font-size:.76rem;font-weight:500;
+    padding:.35rem 1rem;border-radius:50px;letter-spacing:.06em;text-transform:uppercase;
+    margin-bottom:1.6rem;
+  }
+  .badge-dot{width:6px;height:6px;border-radius:50%;background:var(--blue-light);animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+  h1{font-family:'Syne',sans-serif;font-size:clamp(2.6rem,5.5vw,4.8rem);font-weight:800;line-height:1.08;color:#fff;max-width:840px;margin-bottom:1.4rem}
+  h1 em{font-style:normal;background:linear-gradient(90deg,var(--blue-light),var(--mint-dark));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+
+  .hero-sub{font-size:1.1rem;line-height:1.75;color:rgba(255,255,255,.62);max-width:560px;margin-bottom:2.5rem;font-weight:300}
+
+  .hero-actions{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center}
+  .btn-p{background:var(--blue);color:#fff;padding:.85rem 2rem;border-radius:50px;font-size:.94rem;font-weight:500;text-decoration:none;box-shadow:0 4px 22px rgba(74,158,222,.38);transition:transform .2s,background .2s}
+  .btn-p:hover{background:var(--blue-light);transform:translateY(-2px)}
+  .btn-o{background:transparent;color:rgba(255,255,255,.8);padding:.85rem 2rem;border-radius:50px;border:1px solid rgba(255,255,255,.24);font-size:.94rem;text-decoration:none;transition:border-color .2s,color .2s}
+  .btn-o:hover{border-color:var(--mint);color:var(--mint)}
+
+  /* stats row */
+  .stats-row{display:flex;gap:3rem;justify-content:center;flex-wrap:wrap;margin-top:4rem;padding-top:2.5rem;border-top:1px solid rgba(255,255,255,.1);width:100%;max-width:720px}
+  .s-num{font-family:'Syne',sans-serif;font-size:2rem;font-weight:700;color:#fff;display:block}
+  .s-lbl{font-size:.75rem;color:rgba(255,255,255,.45);letter-spacing:.05em;text-transform:uppercase}
+
+  /* device mockup */
+  .hero-device{margin-top:4rem;display:flex;gap:2rem;align-items:flex-end;justify-content:center;flex-wrap:wrap;animation:float 4.5s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+
+  /* pill box */
+  .pillbox{
+    width:220px;background:#0a1e35;border-radius:24px;padding:16px;
+    border:1.5px solid rgba(93,207,202,.3);
+    box-shadow:0 0 0 4px rgba(93,207,202,.06),0 40px 80px rgba(0,0,0,.5);
+  }
+  .pb-top{background:#0f2848;border-radius:14px;padding:12px;margin-bottom:10px}
+  .oled{background:#000;border-radius:6px;padding:8px;font-family:'Courier New',monospace;font-size:.62rem;line-height:1.5;color:#4ade80;margin-bottom:8px}
+  .pb-leds{display:flex;gap:5px;justify-content:center}
+  .led{width:10px;height:10px;border-radius:50%}
+  .led.on{background:var(--green);box-shadow:0 0 8px var(--green)}
+  .led.off{background:#1a3a2a}
+  .led.warn{background:var(--amber);box-shadow:0 0 8px var(--amber)}
+  .pb-comps{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+  .comp{
+    aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;
+    font-size:.65rem;font-weight:600;color:rgba(255,255,255,.6);
+    border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);
+    letter-spacing:.02em;
+  }
+  .comp.open{background:rgba(93,207,202,.15);border-color:rgba(93,207,202,.4);color:var(--mint-dark)}
+
+  /* phone */
+  .phone{width:160px;background:#0f1e33;border-radius:24px;padding:10px;border:1.5px solid rgba(74,158,222,.25);box-shadow:0 30px 60px rgba(0,0,0,.45)}
+  .pscreen{background:#142a45;border-radius:16px;overflow:hidden;min-height:300px}
+  .ptop{background:var(--navy);padding:.7rem .8rem;display:flex;align-items:center;justify-content:space-between}
+  .pav{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--mint-dark));display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:700;color:#fff}
+  .pgreet .hey{font-size:.55rem;color:rgba(255,255,255,.4)}
+  .pgreet .nm{font-size:.72rem;color:#fff;font-weight:500}
+  .pnotif{font-size:.6rem;background:rgba(255,90,95,.2);color:var(--red);border:1px solid rgba(255,90,95,.35);width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700}
+  .pbody{padding:.7rem}
+  .pcard{background:rgba(74,158,222,.12);border:1px solid rgba(74,158,222,.22);border-radius:10px;padding:.65rem;margin-bottom:.55rem}
+  .prow{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
+  .pname{font-size:.65rem;font-weight:500;color:#fff}
+  .ptime{font-size:.55rem;color:var(--blue-light)}
+  .ptag{font-size:.52rem;padding:2px 6px;border-radius:10px;font-weight:500}
+  .tok{background:rgba(72,199,116,.18);color:var(--green)}
+  .tpend{background:rgba(255,179,71,.18);color:var(--amber)}
+  .tskip{background:rgba(255,90,95,.18);color:var(--red)}
+  .pbar{height:3px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden;margin-top:5px}
+  .pbfill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--blue),var(--mint-dark))}
+
+  /* ─── SECTIONS ─── */
+  section{padding:6rem 2rem}
+  .inner{max-width:1100px;margin:0 auto}
+  .tag{font-size:.74rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);display:block;margin-bottom:.7rem}
+  h2{font-family:'Syne',sans-serif;font-size:clamp(1.75rem,3.2vw,2.65rem);font-weight:700;line-height:1.2;color:var(--navy);margin-bottom:.9rem}
+  .sub{font-size:1.02rem;color:var(--muted);line-height:1.72;max-width:560px}
+
+  /* ─── PROBLEMA ─── */
+  #problema{background:var(--white)}
+  .pgrid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;margin-top:3rem}
+  .pain-list{list-style:none;display:flex;flex-direction:column;gap:.9rem;margin-top:1.5rem}
+  .pain-item{display:flex;align-items:flex-start;gap:.9rem;padding:1rem 1.2rem;background:#FFF5F5;border-radius:14px;border-left:3px solid var(--red)}
+  .pi-icon{width:36px;height:36px;border-radius:10px;background:rgba(255,90,95,.1);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+  .pi-t{font-size:.9rem;font-weight:500;color:var(--dark);margin-bottom:.18rem}
+  .pi-s{font-size:.8rem;color:var(--muted)}
+  .callout{background:linear-gradient(135deg,var(--navy),var(--navy-light));border-radius:22px;padding:2.5rem;color:#fff;display:flex;flex-direction:column;gap:1.5rem}
+  .cn{font-family:'Syne',sans-serif;font-size:3.2rem;font-weight:800;background:linear-gradient(90deg,var(--blue-light),var(--mint));-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1}
+  .ct{font-size:.92rem;color:rgba(255,255,255,.68);line-height:1.6}
+  .cdiv{width:36px;height:2px;background:rgba(255,255,255,.18)}
+
+  /* ─── SOLUCIÓN ─── */
+  #solucion{background:var(--bg)}
+  .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.4rem;margin-top:3rem}
+  .fc{background:var(--white);border-radius:20px;padding:1.7rem;border:1px solid rgba(0,0,0,.06);transition:transform .2s,box-shadow .2s}
+  .fc:hover{transform:translateY(-4px);box-shadow:0 14px 40px rgba(30,58,95,.1)}
+  .fi{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.25rem;margin-bottom:.9rem}
+  .fc h3{font-family:'Syne',sans-serif;font-size:.97rem;font-weight:700;color:var(--navy);margin-bottom:.45rem}
+  .fc p{font-size:.85rem;color:var(--muted);line-height:1.65}
+
+  /* ─── TÉCNICO ─── */
+  #tecnico{background:var(--navy)}
+  #tecnico h2{color:#fff}
+  #tecnico .sub{color:rgba(255,255,255,.58)}
+  #tecnico .tag{color:var(--mint-dark)}
+  .arch-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.4rem;margin-top:3rem}
+  .ac{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:1.5rem}
+  .ac-title{font-family:'Syne',sans-serif;font-size:.8rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--blue-light);margin-bottom:.9rem;display:flex;align-items:center;gap:7px}
+  .code{background:rgba(0,0,0,.32);border-radius:10px;padding:.9rem;font-family:'Courier New',monospace;font-size:.75rem;line-height:1.75;color:#a8d8f0;overflow:hidden}
+  .ck{color:var(--mint-dark)}.cs{color:var(--amber)}.cn2{color:var(--purple)}.cc{color:rgba(255,255,255,.3)}
+  .ttags{display:flex;flex-wrap:wrap;gap:7px;margin-top:.9rem}
+  .ttag{background:rgba(74,158,222,.14);border:1px solid rgba(74,158,222,.28);color:var(--blue-light);font-size:.72rem;font-weight:500;padding:3px 11px;border-radius:20px}
+
+  /* hardware specs */
+  .hw-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:1.5rem}
+  .hw-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);border-radius:14px;padding:1.1rem;text-align:center}
+  .hw-icon{font-size:1.4rem;margin-bottom:.5rem}
+  .hw-val{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;color:#fff;margin-bottom:.2rem}
+  .hw-lbl{font-size:.7rem;color:rgba(255,255,255,.45);letter-spacing:.04em}
+
+  /* ─── IMPACTO / GRÁFICA ─── */
+  #impacto{background:var(--white)}
+  .chart-wrap{margin-top:3.5rem;background:var(--bg);border-radius:22px;padding:2.5rem;border:1px solid rgba(0,0,0,.06)}
+  .chart-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:2rem}
+  .chart-title{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:var(--navy)}
+  .chart-legend{display:flex;gap:1.5rem;flex-wrap:wrap}
+  .leg-item{display:flex;align-items:center;gap:6px;font-size:.8rem;color:var(--muted)}
+  .leg-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+  /* bar chart */
+  .bars-area{position:relative}
+  .y-axis{position:absolute;left:0;top:0;bottom:30px;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-end;padding-right:10px;width:50px}
+  .y-lbl{font-size:.68rem;color:var(--muted)}
+  .bars-canvas{margin-left:60px;position:relative}
+  .grid-lines{position:absolute;top:0;left:0;right:0;bottom:30px;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none}
+  .gl{border-top:1px dashed rgba(0,0,0,.08);width:100%}
+  .bars-row{display:flex;align-items:flex-end;gap:10px;height:260px;padding-bottom:30px;position:relative}
+  .bar-group{flex:1;display:flex;gap:3px;align-items:flex-end;flex-direction:column;position:relative}
+  .bar-group:hover .bar-tooltip{opacity:1;transform:translateY(-4px)}
+  .bar-pair{display:flex;gap:3px;align-items:flex-end;width:100%}
+  .bar{border-radius:6px 6px 0 0;transition:opacity .2s;min-width:0;flex:1}
+  .bar.b-sin{background:linear-gradient(180deg,#FF5A5F,#ff8a8e)}
+  .bar.b-con{background:linear-gradient(180deg,var(--green),#6ee89a)}
+  .bar-label{position:absolute;bottom:0;left:0;right:0;text-align:center;font-size:.65rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bar-tooltip{position:absolute;top:-70px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;font-size:.7rem;padding:6px 10px;border-radius:8px;white-space:nowrap;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;z-index:10}
+  .bar-tooltip::after{content:'';position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);width:8px;height:8px;background:var(--navy);clip-path:polygon(0 0,100% 0,50% 100%)}
+
+  /* kpi cards */
+  .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:1.5rem}
+  .kpi{background:var(--bg);border-radius:14px;padding:1.2rem;text-align:center;border:1px solid rgba(0,0,0,.06)}
+  .kpi-num{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;display:block;margin-bottom:.2rem}
+  .kpi-lbl{font-size:.75rem;color:var(--muted);line-height:1.4}
+  .kpi.green .kpi-num{color:var(--green-dark)}
+  .kpi.red .kpi-num{color:var(--red)}
+  .kpi.blue .kpi-num{color:var(--navy)}
+  .kpi.mint .kpi-num{color:#0c6e6a}
+
+  /* ─── NEGOCIO ─── */
+  #negocio{background:var(--bg)}
+  .canvas-grid{display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:auto auto;gap:1rem;margin-top:3rem}
+  .cc2{background:var(--white);border-radius:14px;padding:1.2rem;border:1px solid rgba(0,0,0,.06)}
+  .cc2.tall{grid-row:span 2}
+  .cc2.wide2{grid-column:span 2}
+  .cc2.wide3{grid-column:span 3}
+  .cc2-title{font-family:'Syne',sans-serif;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:.7rem}
+  .cc2 ul{list-style:none;display:flex;flex-direction:column;gap:4px}
+  .cc2 ul li{font-size:.78rem;color:var(--muted);line-height:1.4}
+  .cc2 ul li::before{content:"→ ";color:var(--blue);font-size:.68rem}
+  .acc-blue{border-left:3px solid var(--blue)}.acc-blue .cc2-title{color:var(--navy)}
+  .acc-green{border-left:3px solid var(--green)}.acc-green .cc2-title{color:var(--green-dark)}
+  .acc-amber{border-left:3px solid var(--amber)}.acc-amber .cc2-title{color:#7a5200}
+  .acc-red{border-left:3px solid var(--red)}.acc-red .cc2-title{color:#9a2020}
+  .acc-mint{border-left:3px solid var(--mint-dark)}.acc-mint .cc2-title{color:#0c6e6a}
+
+  /* ─── EQUIPO ─── */
+  #equipo{background:var(--white)}
+  .tgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:1.1rem;margin-top:3rem}
+  .tc{background:var(--bg);border-radius:18px;padding:1.5rem 1rem;text-align:center;border:1px solid rgba(0,0,0,.06)}
+  .tav{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:#fff;margin:0 auto .9rem}
+  .tname{font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;color:var(--navy);margin-bottom:.2rem}
+  .trole{font-size:.72rem;color:var(--muted);margin-bottom:.45rem}
+  .tdept{font-size:.65rem;background:var(--mint-bg);color:var(--navy-light);padding:3px 8px;border-radius:20px;display:inline-block}
+
+  /* ─── FOOTER ─── */
+  footer{background:var(--navy);color:rgba(255,255,255,.48);text-align:center;padding:2.5rem;font-size:.83rem;line-height:1.7}
+  .flogo{font-family:'Syne',sans-serif;font-size:1.45rem;font-weight:800;color:#fff;display:block;margin-bottom:.4rem}
+  .flinks{display:flex;gap:1.5rem;justify-content:center;margin:.9rem 0;flex-wrap:wrap}
+  .flinks a{color:rgba(255,255,255,.45);text-decoration:none;font-size:.8rem;transition:color .2s}
+  .flinks a:hover{color:var(--mint)}
+
+  /* ─── REVEAL ANIMATION ─── */
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .6s ease,transform .6s ease}
+  .reveal.visible{opacity:1;transform:translateY(0)}
+  .d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}.d4{transition-delay:.4s}
+
+  @media(max-width:900px){
+    nav{padding:1rem 1.5rem}
+    .nav-links{display:none}
+    .pgrid,.feat-grid,.arch-grid,.tgrid{grid-template-columns:1fr}
+    .canvas-grid{grid-template-columns:1fr 1fr}
+    .cc2.tall{grid-row:span 1}.cc2.wide2,.cc2.wide3{grid-column:span 1}
+    .kpi-row{grid-template-columns:1fr 1fr}
+    .hw-grid{grid-template-columns:1fr 1fr}
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#hero" class="nav-logo">
+    <div class="nav-icon">💊</div>
+    Medicarpp
+  </a>
+  <div class="nav-links">
+    <a href="#problema">Problema</a>
+    <a href="#solucion">Solución</a>
+    <a href="#tecnico">Tecnología</a>
+    <a href="#impacto">Impacto</a>
+    <a href="#negocio">Negocio</a>
+    <a href="#equipo">Equipo</a>
+    <a href="#equipo" class="nav-cta">InnovaTecNM 2026</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="glow g1"></div>
+  <div class="glow g2"></div>
+  <div class="glow g3"></div>
+
+  <div class="badge">
+    <div class="badge-dot"></div>
+    InnovaTecNM 2026 · Folio 65959-17 · Tecnologías para la Salud Humana
+  </div>
+
+  <h1>
+    El pastillero inteligente que<br>devuelve la <em>tranquilidad</em><br>a tu familia
+  </h1>
+
+  <p class="hero-sub">
+    Medicarpp combina un pastillero físico con alertas de luz y sonido con una app móvil en tiempo real —
+    eliminando el 95% de los olvidos de medicamentos en adultos mayores.
+  </p>
+
+  <div class="hero-actions">
+    <a href="#solucion" class="btn-p">Conocer la solución</a>
+    <a href="#tecnico" class="btn-o">Ver tecnología</a>
+  </div>
+
+  <div class="stats-row">
+    <div>
+      <span class="s-num">95%</span>
+      <span class="s-lbl">Menos olvidos</span>
+    </div>
+    <div>
+      <span class="s-num">7 días</span>
+      <span class="s-lbl">Autonomía batería</span>
+    </div>
+    <div>
+      <span class="s-num">70%</span>
+      <span class="s-lbl">Más económico</span>
+    </div>
+    <div>
+      <span class="s-num">&lt;10 min</span>
+      <span class="s-lbl">Configuración</span>
+    </div>
+  </div>
+
+  <!-- DEVICE MOCKUP -->
+  <div class="hero-device">
+    <!-- Pill box -->
+    <div class="pillbox">
+      <div class="pb-top">
+        <div class="oled">
+          <div>MEDICARPP v1.0</div>
+          <div>02:00 PM — DOSIS 2</div>
+          <div style="color:#FFB347">⚡ METFORMINA 500mg</div>
+          <div style="color:#4ade80">✓ 08:00 Tomado</div>
+        </div>
+        <div class="pb-leds">
+          <div class="led on"></div>
+          <div class="led warn"></div>
+          <div class="led off"></div>
+          <div class="led off"></div>
+        </div>
+      </div>
+      <div class="pb-comps">
+        <div class="comp open">A1</div>
+        <div class="comp">A2</div>
+        <div class="comp">A3</div>
+        <div class="comp">A4</div>
+        <div class="comp">B1</div>
+        <div class="comp">B2</div>
+        <div class="comp">B3</div>
+      </div>
+    </div>
+
+    <!-- Phone -->
+    <div class="phone">
+      <div class="pscreen">
+        <div class="ptop">
+          <div class="pav">ML</div>
+          <div class="pgreet">
+            <div class="hey">Hola,</div>
+            <div class="nm">María López</div>
+          </div>
+          <div class="pnotif">1</div>
+        </div>
+        <div class="pbody">
+          <div class="pcard">
+            <div class="prow">
+              <span class="pname">Metformina</span>
+              <span class="ptag tok">Tomado ✓</span>
+            </div>
+            <div class="ptime">8:00 AM · 1 pastilla</div>
+            <div class="pbar"><div class="pbfill" style="width:100%"></div></div>
+          </div>
+          <div class="pcard">
+            <div class="prow">
+              <span class="pname">Losartán 50mg</span>
+              <span class="ptag tpend">Pendiente ⏰</span>
+            </div>
+            <div class="ptime">2:00 PM · 1 pastilla</div>
+            <div class="pbar"><div class="pbfill" style="width:50%"></div></div>
+          </div>
+          <div class="pcard">
+            <div class="prow">
+              <span class="pname">Atorvastatina</span>
+              <span class="ptag tok">Tomado ✓</span>
+            </div>
+            <div class="ptime">9:00 PM · 1 pastilla</div>
+            <div class="pbar"><div class="pbfill" style="width:30%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEMA -->
+<section id="problema">
+  <div class="inner">
+    <span class="tag reveal">El problema</span>
+    <h2 class="reveal">8 de cada 10 adultos mayores<br>no siguen su tratamiento</h2>
+    <div class="pgrid">
+      <div>
+        <p class="sub reveal">
+          El olvido de medicamentos es una crisis silenciosa. Gestionar hasta 10 pastillas diarias
+          con horarios distintos, sumado a problemas de memoria o falta de apoyo en casa, deriva en
+          emergencias médicas evitables y una carga constante para las familias.
+        </p>
+        <ul class="pain-list">
+          <li class="pain-item reveal d1">
+            <div class="pi-icon">🧠</div>
+            <div>
+              <div class="pi-t">Olvido frecuente de dosis</div>
+              <div class="pi-s">Hasta 10 pastillas diarias con horarios distintos son imposibles de recordar sin ayuda</div>
+            </div>
+          </li>
+          <li class="pain-item reveal d2">
+            <div class="pi-icon">💸</div>
+            <div>
+              <div class="pi-t">Soluciones actuales inaccesibles</div>
+              <div class="pi-s">Hero, PillPack y similares cobran hasta $100 USD/mes — demasiado para la mayoría</div>
+            </div>
+          </li>
+          <li class="pain-item reveal d3">
+            <div class="pi-icon">📱</div>
+            <div>
+              <div class="pi-t">Interfaces tecnológicas complejas</div>
+              <div class="pi-s">Los adultos mayores necesitan soluciones extremadamente simples e intuitivas</div>
+            </div>
+          </li>
+          <li class="pain-item reveal d4">
+            <div class="pi-icon">😰</div>
+            <div>
+              <div class="pi-t">Ansiedad en cuidadores y familias</div>
+              <div class="pi-s">Los hijos viven con la preocupación de no saber si su familiar tomó su medicación</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="callout reveal">
+        <div>
+          <div class="cn">85%</div>
+          <div class="ct">de los adultos mayores con enfermedades crónicas no logran seguir su tratamiento correctamente (OMS)</div>
+        </div>
+        <div class="cdiv"></div>
+        <div>
+          <div class="cn">$1,200</div>
+          <div class="ct">USD al año es lo que cuestan las soluciones actuales del mercado — Medicarpp es 70% más económico</div>
+        </div>
+        <div class="cdiv"></div>
+        <div>
+          <div class="cn">5–10×</div>
+          <div class="ct">más caras son las hospitalizaciones de emergencia vs. el tratamiento preventivo adecuado</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOLUCIÓN -->
+<section id="solucion">
+  <div class="inner">
+    <span class="tag reveal">La solución</span>
+    <h2 class="reveal">Medicarpp — Pastillero inteligente<br>+ app para el cuidador</h2>
+    <p class="sub reveal">Un ecosistema completo: el dispositivo físico guía al paciente con luces, sonidos y vibraciones;
+    la app da paz mental al cuidador con monitoreo en tiempo real.</p>
+
+    <div class="feat-grid">
+      <div class="fc reveal">
+        <div class="fi" style="background:#E8F8F7">💡</div>
+        <h3>Alertas visuales y sonoras</h3>
+        <p>LEDs RGB y buzzer avisan al paciente en el momento exacto de la toma. No requiere leer una pantalla ni usar el celular.</p>
+      </div>
+      <div class="fc reveal d1">
+        <div class="fi" style="background:#EDF7FF">📱</div>
+        <h3>App para el cuidador</h3>
+        <p>Los familiares reciben notificación automática si una dosis fue omitida. Monitoreo en tiempo real sin llamadas constantes.</p>
+      </div>
+      <div class="fc reveal d2">
+        <div class="fi" style="background:#F3F0FF">⚡</div>
+        <h3>7 días de autonomía</h3>
+        <p>Batería Li-Po de 3000 mAh que garantiza una semana completa sin recargar. El paciente no depende de enchufes diarios.</p>
+      </div>
+      <div class="fc reveal d3">
+        <div class="fi" style="background:#FFF5F5">🔒</div>
+        <h3>Compartimentos controlados</h3>
+        <p>7 servomotores SG90 gestionan cada compartimento. Solo abre el correcto en el momento correcto, evitando confusiones.</p>
+      </div>
+      <div class="fc reveal d4">
+        <div class="fi" style="background:#F0FFF4">📊</div>
+        <h3>Historial automático</h3>
+        <p>Registro de cada toma realizada u omitida. El médico obtiene un historial preciso para optimizar el tratamiento.</p>
+      </div>
+      <div class="fc reveal">
+        <div class="fi" style="background:#FFFBF0">⏱</div>
+        <h3>Configuración en 10 min</h3>
+        <p>Diseñado para baja literacidad digital. Una persona mayor puede configurar su tratamiento completo sin ayuda técnica.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TÉCNICO -->
+<section id="tecnico">
+  <div class="inner">
+    <span class="tag reveal">Arquitectura técnica</span>
+    <h2 class="reveal">Hardware + Software de nivel industrial<br>a precio accesible</h2>
+    <p class="sub reveal">ESP32-WROOM · Flutter · Supabase · Arduino C++ · AES-256. Una pila moderna, segura y de código abierto.</p>
+
+    <!-- HW SPECS -->
+    <div class="hw-grid">
+      <div class="hw-card reveal">
+        <div class="hw-icon">🧠</div>
+        <div class="hw-val">ESP32-WROOM</div>
+        <div class="hw-lbl">240 MHz · 520 KB RAM · WiFi + BLE 4.2</div>
+      </div>
+      <div class="hw-card reveal d1">
+        <div class="hw-icon">🔋</div>
+        <div class="hw-val">3000 mAh</div>
+        <div class="hw-lbl">Batería Li-Po · 7 días autonomía</div>
+      </div>
+      <div class="hw-card reveal d2">
+        <div class="hw-icon">🖥</div>
+        <div class="hw-val">OLED SSD1306</div>
+        <div class="hw-lbl">128×32 px · Pantalla informativa</div>
+      </div>
+      <div class="hw-card reveal d3">
+        <div class="hw-icon">⏰</div>
+        <div class="hw-val">RTC DS3231</div>
+        <div class="hw-lbl">Reloj precisión · Alarmas sin red</div>
+      </div>
+    </div>
+
+    <div class="arch-grid" style="margin-top:1.5rem">
+      <div class="ac reveal">
+        <div class="ac-title"><span style="font-size:15px">📱</span>App móvil · Flutter / Dart</div>
+        <div class="code">
+<span class="cc">// PillCare App – main.dart</span>
+<span class="ck">class</span> PillCareApp <span class="ck">extends</span> StatelessWidget {
+  Widget build(context) {
+    <span class="ck">return</span> MaterialApp(
+      title: <span class="cs">'Medicarpp'</span>,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: AppColors.blue),
+        useMaterial3: <span class="cn2">true</span>,
+      ),
+      home: isLoggedIn
+        ? <span class="ck">HomeScreen</span>()
+        : <span class="ck">LoginScreen</span>(),
+    );
+  }
+}
+        </div>
+        <div class="ttags">
+          <span class="ttag">Flutter 3.19+</span>
+          <span class="ttag">Dart</span>
+          <span class="ttag">Material 3</span>
+          <span class="ttag">iOS 12+ / Android 8+</span>
+        </div>
+      </div>
+
+      <div class="ac reveal d1">
+        <div class="ac-title"><span style="font-size:15px">⚙️</span>Firmware · Arduino / ESP-IDF</div>
+        <div class="code">
+<span class="cc">// Firmware ESP32 · C++</span>
+<span class="ck">#include</span> <span class="cs">&lt;WiFi.h&gt;</span>
+<span class="ck">#include</span> <span class="cs">&lt;RTClib.h&gt;</span>
+<span class="ck">#include</span> <span class="cs">&lt;Servo.h&gt;</span>
+
+<span class="cc">// 7 servomotores SG90</span>
+Servo compartments[<span class="cn2">7</span>];
+
+<span class="ck">void</span> dispenseAt(hour, min, slot) {
+  <span class="ck">if</span> (rtc.now() == alarm) {
+    compartments[slot].write(<span class="cn2">90</span>);
+    triggerAlert(LED_RGB, BUZZER);
+    notifyApp(supabase);
+  }
+}
+        </div>
+        <div class="ttags">
+          <span class="ttag">C++</span>
+          <span class="ttag">Arduino Framework</span>
+          <span class="ttag">ESP-IDF</span>
+          <span class="ttag">OTA Updates</span>
+        </div>
+      </div>
+
+      <div class="ac reveal d2">
+        <div class="ac-title"><span style="font-size:15px">☁️</span>Backend · Supabase / PostgreSQL</div>
+        <div class="code">
+<span class="cc">// Backend as a Service</span>
+<span class="cc">// PostgreSQL 15 + WebSockets</span>
+
+<span class="cc">-- Tablas principales:</span>
+<span class="ck">CREATE TABLE</span> alarmas (
+  id uuid <span class="ck">PRIMARY KEY</span>,
+  user_id uuid <span class="ck">REFERENCES</span> perfiles,
+  hora_disparo <span class="cs">TIME NOT NULL</span>,
+  dias_semana <span class="cs">BOOLEAN[7]</span>,
+  slot_compartimento <span class="cn2">INT</span>
+);
+<span class="cc">-- Auth: JWT + Magic Links</span>
+<span class="cc">-- Cifrado: AES-256 + TLS 1.3</span>
+        </div>
+        <div class="ttags">
+          <span class="ttag">PostgreSQL 15</span>
+          <span class="ttag">JWT Auth</span>
+          <span class="ttag">AES-256</span>
+          <span class="ttag">GDPR / HIPAA</span>
+        </div>
+      </div>
+
+      <div class="ac reveal d3">
+        <div class="ac-title"><span style="font-size:15px">🔗</span>Conectividad · BLE + WiFi</div>
+        <div class="code">
+<span class="cc">// connectivity_screen.dart</span>
+<span class="ck">enum</span> ConnectionType {
+  none, wifi, bluetooth
+}
+
+<span class="ck">class</span> BluetoothService {
+  <span class="cc">// Emparejamiento local BLE 4.2</span>
+  Future&lt;bool&gt; pair(device);
+  Future&lt;void&gt; syncAlarms();
+}
+
+<span class="ck">class</span> WifiService {
+  <span class="cc">// Sync nube en tiempo real</span>
+  Future&lt;bool&gt; connect(ssid, pwd);
+  Stream subscribeAlerts();
+}
+        </div>
+        <div class="ttags">
+          <span class="ttag">Bluetooth BLE 4.2</span>
+          <span class="ttag">WiFi 802.11</span>
+          <span class="ttag">WebSockets</span>
+          <span class="ttag">Push Notifications</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- IMPACTO -->
+<section id="impacto">
+  <div class="inner">
+    <span class="tag reveal">Impacto en salud</span>
+    <h2 class="reveal">Lo que cambia cuando no se olvida<br>un solo medicamento</h2>
+    <p class="sub reveal">
+      La diferencia entre tomar y no tomar la medicación correctamente va más allá del olvido —
+      se traduce en hospitalizaciones, complicaciones y calidad de vida. Así se compara sin y con Medicarpp.
+    </p>
+
+    <!-- KPI cards -->
+    <div class="kpi-row reveal" style="margin-top:2.5rem">
+      <div class="kpi green">
+        <span class="kpi-num">95%</span>
+        <span class="kpi-lbl">Reducción de olvidos de toma</span>
+      </div>
+      <div class="kpi red">
+        <span class="kpi-num">–73%</span>
+        <span class="kpi-lbl">Menos visitas a urgencias</span>
+      </div>
+      <div class="kpi blue">
+        <span class="kpi-num">+68%</span>
+        <span class="kpi-lbl">Mejor adherencia al tratamiento</span>
+      </div>
+      <div class="kpi mint">
+        <span class="kpi-num">99.5%</span>
+        <span class="kpi-lbl">Precisión en los recordatorios</span>
+      </div>
+    </div>
+
+    <!-- BAR CHART -->
+    <div class="chart-wrap reveal">
+      <div class="chart-header">
+        <div class="chart-title">Comparación semanal: Sin Medicarpp vs. Con Medicarpp</div>
+        <div class="chart-legend">
+          <div class="leg-item">
+            <div class="leg-dot" style="background:var(--red)"></div>
+            Sin Medicarpp
+          </div>
+          <div class="leg-item">
+            <div class="leg-dot" style="background:var(--green)"></div>
+            Con Medicarpp
+          </div>
+        </div>
+      </div>
+
+      <div class="bars-area">
+        <div class="y-axis">
+          <span class="y-lbl">100%</span>
+          <span class="y-lbl">75%</span>
+          <span class="y-lbl">50%</span>
+          <span class="y-lbl">25%</span>
+          <span class="y-lbl">0%</span>
+        </div>
+        <div class="bars-canvas">
+          <div class="grid-lines">
+            <div class="gl"></div>
+            <div class="gl"></div>
+            <div class="gl"></div>
+            <div class="gl"></div>
+            <div class="gl"></div>
+          </div>
+          <div class="bars-row" id="chart-bars">
+            <!-- Filled by JS -->
+          </div>
+        </div>
+      </div>
+
+      <p style="font-size:.78rem;color:var(--muted);margin-top:1rem;text-align:center">
+        Datos basados en estudios de adherencia (OMS 2003) y proyecciones del equipo Medicarpp. Indicadores expresados como % del óptimo posible.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- NEGOCIO -->
+<section id="negocio">
+  <div class="inner">
+    <span class="tag reveal">Modelo de negocio</span>
+    <h2 class="reveal">Híbrido: dispositivo + suscripción<br>optional. Escalable desde clínicas</h2>
+
+    <div class="canvas-grid">
+      <div class="cc2 tall acc-blue reveal">
+        <div class="cc2-title">Socios clave</div>
+        <ul>
+          <li>Proveedores electrónicos</li>
+          <li>Desarrolladores externos</li>
+          <li>Clínicas geriátricas</li>
+          <li>Asilos y centros de salud</li>
+          <li>Inversionistas ángel</li>
+        </ul>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:1rem">
+        <div class="cc2 acc-mint reveal">
+          <div class="cc2-title">Actividades clave</div>
+          <ul><li>Desarrollo firmware OTA</li><li>Mantenimiento de app</li><li>Soporte al cliente</li></ul>
+        </div>
+        <div class="cc2 acc-green reveal">
+          <div class="cc2-title">Recursos clave</div>
+          <ul><li>ESP32 + servomotores</li><li>App Flutter</li><li>Supabase cloud</li></ul>
+        </div>
+      </div>
+      <div class="cc2 tall acc-amber reveal">
+        <div class="cc2-title">Propuesta de valor</div>
+        <ul>
+          <li>Elimina el 95% de olvidos</li>
+          <li>Alerta visual + sonora + vibración</li>
+          <li>Supervisión remota familiar</li>
+          <li>Historial médico automático</li>
+          <li>70% más barato que competencia</li>
+          <li>Configurable en &lt;10 minutos</li>
+        </ul>
+        <br><span style="font-size:.75rem;color:#7a5200;font-weight:600">Seguridad · Control · Tranquilidad</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:1rem">
+        <div class="cc2 acc-mint reveal">
+          <div class="cc2-title">Relaciones</div>
+          <ul><li>Soporte técnico personalizado</li><li>App intuitiva WCAG AA</li><li>Capacitación domiciliaria</li></ul>
+        </div>
+        <div class="cc2 acc-blue reveal">
+          <div class="cc2-title">Canales</div>
+          <ul><li>Venta directa online</li><li>Clínicas y farmacias</li><li>Redes sociales</li></ul>
+        </div>
+      </div>
+      <div class="cc2 tall acc-red reveal">
+        <div class="cc2-title">Segmentos</div>
+        <ul>
+          <li>Adultos mayores 65+</li>
+          <li>Pacientes crónicos</li>
+          <li>Cuidadores 40–55 años</li>
+          <li>Médicos geriátras</li>
+          <li>Clínicas y asilos (B2B)</li>
+        </ul>
+      </div>
+      <div class="cc2 wide2 acc-blue reveal" style="grid-column:span 2">
+        <div class="cc2-title">Estructura de costos</div>
+        <ul style="flex-direction:row;flex-wrap:wrap;gap:10px">
+          <li>Componentes $70–85 USD/u</li>
+          <li>Desarrollo continuo</li>
+          <li>Marketing salud</li>
+          <li>Soporte técnico</li>
+        </ul>
+      </div>
+      <div class="cc2 acc-green reveal" style="grid-column:span 3">
+        <div class="cc2-title">Fuentes de ingreso</div>
+        <ul style="flex-direction:row;flex-wrap:wrap;gap:10px">
+          <li>Venta dispositivo (precio competitivo)</li>
+          <li>Suscripción app premium $15 USD/mes</li>
+          <li>Mantenimiento y calibración</li>
+          <li>Licencias B2B (clínicas)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EQUIPO -->
+<section id="equipo">
+  <div class="inner">
+    <span class="tag reveal">El equipo</span>
+    <h2 class="reveal">5 ingenieros del TecNM Nuevo León<br>en activo desarrollo</h2>
+    <p class="sub reveal">Un equipo multidisciplinario con habilidades en sistemas computacionales, electromecánica, IoT, Flutter y gestión de productos de salud digital.</p>
+
+    <div class="tgrid">
+      <div class="tc reveal">
+        <div class="tav" style="background:linear-gradient(135deg,#4A9EDE,#2D5282)">VS</div>
+        <div class="tname">Víctor San Martín</div>
+        <div class="trole">Líder del proyecto</div>
+        <div class="tdept">Ing. Sistemas Comp.</div>
+      </div>
+      <div class="tc reveal d1">
+        <div class="tav" style="background:linear-gradient(135deg,#48C774,#0a7a3c)">EM</div>
+        <div class="tname">Emmanuel Morfin</div>
+        <div class="trole">Desarrollo de app</div>
+        <div class="tdept">Ing. Sistemas Comp.</div>
+      </div>
+      <div class="tc reveal d2">
+        <div class="tav" style="background:linear-gradient(135deg,#FFB347,#d47800)">AN</div>
+        <div class="tname">Angel Narváez</div>
+        <div class="trole">Hardware / Mecánica</div>
+        <div class="tdept">Ing. Electromecánica</div>
+      </div>
+      <div class="tc reveal d3">
+        <div class="tav" style="background:linear-gradient(135deg,#A29BFE,#6c5ce7)">JH</div>
+        <div class="tname">Jenifer Hernández</div>
+        <div class="trole">Backend / BaaS</div>
+        <div class="tdept">Ing. Sistemas Comp.</div>
+      </div>
+      <div class="tc reveal d4">
+        <div class="tav" style="background:linear-gradient(135deg,#5DCFCA,#0c6e6a)">AG</div>
+        <div class="tname">Alejandro Galván</div>
+        <div class="trole">Firmware IoT</div>
+        <div class="tdept">Ing. Sistemas Comp.</div>
+      </div>
+    </div>
+
+    <div style="margin-top:2.5rem;background:var(--bg);border-radius:18px;padding:1.75rem;border:1px solid rgba(0,0,0,.06);display:flex;gap:2rem;align-items:center;flex-wrap:wrap" class="reveal">
+      <div>
+        <div style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Asesor principal</div>
+        <div style="font-weight:600;color:var(--navy);font-family:'Syne',sans-serif">Manuel Antonio Martínez Aguilar</div>
+        <div style="font-size:.82rem;color:var(--muted)">amartinez@matinformatica.com</div>
+      </div>
+      <div style="width:1px;height:44px;background:rgba(0,0,0,.08)"></div>
+      <div>
+        <div style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Co-asesor</div>
+        <div style="font-weight:600;color:var(--navy);font-family:'Syne',sans-serif">Juan Antonio Romero Martínez</div>
+        <div style="font-size:.82rem;color:var(--muted)">juan.rm@nuevoleon.tecnm.mx</div>
+      </div>
+      <div style="margin-left:auto;text-align:right">
+        <div style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Concurso</div>
+        <div style="font-weight:600;color:var(--navy);font-family:'Syne',sans-serif">InnovaTecNM 2026 · Folio 65959-17</div>
+        <div style="font-size:.82rem;color:var(--muted)">Región 2 · Tecnologías para la Salud Humana · v1.0.0</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span class="flogo">💊 Medicarpp</span>
+  <p>Pastillero inteligente portátil · Gestión y recordatorio de medicamentos con IoT y app móvil</p>
+  <div class="flinks">
+    <a href="#problema">Problema</a>
+    <a href="#solucion">Solución</a>
+    <a href="#tecnico">Tecnología</a>
+    <a href="#impacto">Impacto</a>
+    <a href="#negocio">Negocio</a>
+    <a href="#equipo">Equipo</a>
+  </div>
+  <p><strong>Instituto Tecnológico de Nuevo León</strong> · Cumbre Nacional de Desarrollo Tecnológico, Emprendimiento e Innovación · <strong>InnovaTecNM 2026</strong></p>
+  <p style="margin-top:.4rem;font-size:.76rem">Folio 65959-17 · Ciencias Computacionales · Telemedicina y Salud Digital</p>
+</footer>
+
+<script>
+  /* ── Reveal on scroll ── */
+  const obs = new IntersectionObserver(entries =>
+    entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible') }),
+    { threshold: 0.1 }
+  );
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+  /* ── Bar chart ── */
+  const metrics = [
+    { label: 'Tomas correctas',   sin: 18, con: 96 },
+    { label: 'Adherencia semanal', sin: 22, con: 94 },
+    { label: 'Alertas recibidas',  sin: 5,  con: 99 },
+    { label: 'Dosis omitidas',     sin: 78, con: 4  },
+    { label: 'Emergencias evitadas',sin: 10, con: 88 },
+    { label: 'Tranquilidad familiar',sin:15, con: 91 },
+    { label: 'Calidad de vida',    sin: 38, con: 87 },
+  ];
+
+  const container = document.getElementById('chart-bars');
+  const BAR_H = 210; // max px height (of the bar area minus label space)
+
+  metrics.forEach(m => {
+    const sinH  = Math.round((m.sin / 100) * BAR_H);
+    const conH  = Math.round((m.con / 100) * BAR_H);
+    const group = document.createElement('div');
+    group.className = 'bar-group';
+    group.innerHTML = `
+      <div class="bar-tooltip">
+        Sin: ${m.sin}% &nbsp;|&nbsp; Con: ${m.con}%
+      </div>
+      <div class="bar-pair">
+        <div class="bar b-sin" style="height:${sinH}px"></div>
+        <div class="bar b-con" style="height:${conH}px"></div>
+      </div>
+      <div class="bar-label">${m.label}</div>
+    `;
+    container.appendChild(group);
+  });
+</script>
+</body>
+</html>
